@@ -20,7 +20,7 @@ class TestSaleCommissionPricelist(TestAccountCommission):
                         0,
                         0,
                         {
-                            "name": "20% discount and commission on Test " "product 2",
+                            "name": "20% discount and commission on Test product 2",
                             "applied_on": "0_product_variant",
                             "product_id": cls.product.id,
                             "compute_price": "formula",
@@ -90,7 +90,7 @@ class TestSaleCommissionPricelist(TestAccountCommission):
                         0,
                         0,
                         {
-                            "name": "30% discount and commission on Test " "product 2",
+                            "name": "30% discount and commission on Test product 2",
                             "applied_on": "0_product_variant",
                             "product_id": self.product2.id,
                             "compute_price": "formula",
