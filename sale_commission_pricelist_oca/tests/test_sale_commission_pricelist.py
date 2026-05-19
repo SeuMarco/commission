@@ -52,8 +52,7 @@ class TestSaleCommissionPricelist(TestAccountCommission):
         )
 
     def _create_sale_order(self):
-        agent = self.env.ref("commission_oca.res_partner_pritesh_sale_agent")
-        self.partner.agent_ids = [(6, 0, agent.ids)]
+        self.partner.commission_agent_ids = [(6, 0, self.agent_monthly.ids)]
         order_form = Form(self.env["sale.order"])
         order_form.partner_id = self.partner
         order_form.pricelist_id = self.pricelist

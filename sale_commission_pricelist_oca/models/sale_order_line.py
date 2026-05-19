@@ -16,7 +16,7 @@ class SaleOrderLine(models.Model):
             product=self.product_id,
             quantity=self.product_uom_qty or 1.0,
             date=self.order_id.date_order,
-            uom_id=self.product_uom.id,
+            uom=self.product_uom_id,
         )[1]
         rule = self.env["product.pricelist.item"].browse(rule_id)
         return rule.commission_id
