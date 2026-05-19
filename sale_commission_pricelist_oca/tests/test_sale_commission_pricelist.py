@@ -107,3 +107,75 @@ class TestSaleCommissionPricelist(TestAccountCommission):
         self.assertEqual(
             sale_order.order_line[1].agent_ids[:1].commission_id, commission_3
         )
+
+    def test_pricelist_level_commission_fallback(self):
+        """
+        When the matched pricelist rule has no commission_id, fall back to
+        the commission_id set on the pricelist itself.
+        """
+        commission_pricelist = self.env["commission"].create(
+            {"name": "Pricelist-level commission", "fix_qty": 7.0}
+        )
+        pricelist_fallback = self.env["product.pricelist"].create(
+            {
+                "name": "Pricelist with fallback commission",
+                "commission_id": commission_pricelist.id,
+                "item_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "Item without commission_id",
+                            "applied_on": "3_global",
+                            "compute_price": "percentage",
+                            "base": "list_price",
+                            "percent_price": 5,
+                        },
+                    ),
+                ],
+            }
+        )
+        sale_order = self._create_sale_order()
+        sale_order.pricelist_id = pricelist_fallback
+        self.assertEqual(
+            sale_order.order_line[0].agent_ids[:1].commission_id,
+            commission_pricelist,
+        )
+
+    def test_pricelist_item_commission_wins_over_pricelist(self):
+        """
+        When both the matched pricelist rule AND the pricelist have a
+        commission_id, the rule's commission_id wins.
+        """
+        commission_pricelist = self.env["commission"].create(
+            {"name": "Pricelist-level commission", "fix_qty": 7.0}
+        )
+        commission_item = self.env["commission"].create(
+            {"name": "Item-level commission", "fix_qty": 4.0}
+        )
+        pricelist_both = self.env["product.pricelist"].create(
+            {
+                "name": "Pricelist with both fallbacks",
+                "commission_id": commission_pricelist.id,
+                "item_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "Item with its own commission",
+                            "applied_on": "3_global",
+                            "compute_price": "percentage",
+                            "base": "list_price",
+                            "percent_price": 5,
+                            "commission_id": commission_item.id,
+                        },
+                    ),
+                ],
+            }
+        )
+        sale_order = self._create_sale_order()
+        sale_order.pricelist_id = pricelist_both
+        self.assertEqual(
+            sale_order.order_line[0].agent_ids[:1].commission_id,
+            commission_item,
+        )
